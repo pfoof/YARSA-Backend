@@ -1,1 +1,6 @@
 .env
+target/generated-*
+target/maven-*
+target/*.jar.original
+target/classes/
+target/test-classes/
