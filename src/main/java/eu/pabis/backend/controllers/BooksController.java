@@ -24,11 +24,12 @@ public class BooksController {
 	@Autowired
 	private BookService service;
 
-	@RequestMapping("/")
+	@RequestMapping( value = {"/", ""} )
 	@ResponseBody //Skip thymeleaf
 	List<BookModel> books() {
 		return service.getBooks();
 	}
+	
 	
 	@RequestMapping("/{id}")
 	@ResponseBody //Skip thymeleaf
