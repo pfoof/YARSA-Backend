@@ -34,15 +34,15 @@ public class BooksController {
 	
 	@RequestMapping(method = RequestMethod.POST, value = {"/", ""})
 	@ResponseBody //Skip thymeleaf
-	void addBook(@RequestBody BookModel book) throws HttpClientErrorException {
+	String addBook(@RequestBody BookModel book) throws HttpClientErrorException {
 		try {
-			service.addBook(book);
+			return service.addBook(book);
 		} catch (NullPointerException e) {
 			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "The content of the record is null");
 		}
 	}
 	
-	@RequestMapping("/{id}")
+	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@ResponseBody //Skip thymeleaf
 	BookModel books(@PathVariable("id") String id) throws HttpClientErrorException {
 		BookModel book = service.getBook(id);
@@ -51,6 +51,16 @@ public class BooksController {
 		else
 			return book;
 		
+	}
+	
+	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+	@ResponseBody //Skip thymeleaf
+	String deleteBook(@PathVariable("id") String id) throws HttpClientErrorException {
+		try {
+			return service.deleteBook(id);
+		} catch (NullPointerException e) {
+			throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "Book with id "+id+" is not in the database!");
+		}
 	}
 	
 }

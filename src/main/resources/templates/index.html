@@ -10,11 +10,35 @@
 		
 		<SCRIPT TYPE="text/javascript">
 			function formBook(book) {
-				return $("<li>")
+				var li = $("<li>")
+					.addClass("list-group-item");
+				
+				var span = $("<span>")
+					.css({"margin": "0px 16px"})
+					.html(book.author + " - " + book.title)
+					.appendTo(li);
+					
+				var view = $("<button>")
+					.css({"margin": "0px 16px"})
 					.on("click", function() {
 						bookDetails(book.id);
 					})
-					.html(book.author + " - " + book.title);
+					.addClass("btn")
+					.addClass("btn-secondary")
+					.html("View")
+					.appendTo(li);
+				
+				var del = $("<button>")
+					.css({"margin": "0px 16px"})
+					.on("click", function() {
+						deleteBook(book.id);
+					})
+					.addClass("btn")
+					.addClass("btn-danger")
+					.html("Delete")
+					.appendTo(li);
+					
+				return li;
 			}
 			
 			function bookDetails(id) {
@@ -48,6 +72,20 @@
 					}
 				});
 			}
+			
+			function deleteBook(id) {
+				$.ajax({
+					url: "/books/"+id,
+					method: "DELETE",
+					contentType: "application/json",
+					mimeType: "application/json",
+					success: function(data, status, xhr) {
+						$("#title").val("");
+						$("#author").val("");
+						books();
+					}
+				});
+			}
 		
 			function books() {
 				$("#list").html("");
@@ -61,19 +99,21 @@
 			$(function(){
 				$("#books-refresh").on("click", function() {books();});
 				$("#books-add").on("click", function() {addBook();});
+				books();
 			});
 		</SCRIPT>
 	</HEAD>
 	<BODY>
 		<H2>YARSA - Books @ Pabis.eu</H2>
 		
-		<BUTTON CLASS="btn-secondary" ID="books-refresh">Refresh</BUTTON>
 		<DIV>
 			<INPUT TYPE="text" PLACEHOLDER="Title" ID="title" />
 			<INPUT TYPE="text" PLACEHOLDER="Author" ID="author" />
-			<BUTTON CLASS="btn-primary" ID="books-add">Add</BUTTON> 
+			<BUTTON CLASS="btn btn-success" ID="books-add">Add</BUTTON> 
 		</DIV>
-		<UL ID="list">
+		
+		<BUTTON CLASS="btn btn-primary" ID="books-refresh">Refresh</BUTTON>
+		<UL ID="list" CLASS="list-group">
 			
 		</UL>
 		

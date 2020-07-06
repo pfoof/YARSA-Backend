@@ -30,14 +30,26 @@ public class BookService {
 		return target;
 	}
 	
-	public void addBook(BookModel book) throws NullPointerException {
+	public String addBook(BookModel book) throws NullPointerException {
 		if(book != null) {
 			books.add(book);
+			return idToJson(book.id);
 		} else throw new NullPointerException();
+	}
+	
+	public String deleteBook(String id) {
+		BookModel book = getBook(id);
+		if(book == null) throw new NullPointerException();
+		
+		books.remove(book);
+		
+		return idToJson(book.id);
 	}
 	
 	public List<BookModel> getBooks() {
 		return books;
 	}
+	
+	public static String idToJson(String id) { return "{\"id\":\""+id+"\"}"; }
 	
 }
