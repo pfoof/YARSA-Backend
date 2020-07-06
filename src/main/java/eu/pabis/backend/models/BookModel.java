@@ -2,6 +2,8 @@ package eu.pabis.backend.models;
 
 import java.util.UUID;
 
+import org.springframework.boot.context.properties.ConstructorBinding;
+
 public class BookModel {
 
 	public String id;
@@ -10,10 +12,15 @@ public class BookModel {
 	
 	public String title;
 	
+	public BookModel() {
+		this.id = UUID.randomUUID().toString();
+	}
+	
+	@ConstructorBinding
 	public BookModel(String author, String title) {
+		this();
 		this.author = author;
 		this.title = title;
-		this.id = UUID.randomUUID().toString();
 	}
 	
 	public BookModel(String id, String author, String title) {

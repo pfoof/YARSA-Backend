@@ -3,7 +3,9 @@ package eu.pabis.backend.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import eu.pabis.backend.models.BookModel;
 
@@ -26,6 +28,12 @@ public class BookService {
 			}
 		}
 		return target;
+	}
+	
+	public void addBook(BookModel book) throws NullPointerException {
+		if(book != null) {
+			books.add(book);
+		} else throw new NullPointerException();
 	}
 	
 	public List<BookModel> getBooks() {

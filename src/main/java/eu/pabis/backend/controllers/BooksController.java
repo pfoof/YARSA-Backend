@@ -7,7 +7,9 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpClientErrorException;
 
@@ -24,12 +26,21 @@ public class BooksController {
 	@Autowired
 	private BookService service;
 
-	@RequestMapping( value = {"/", ""} )
+	@RequestMapping( value = {"/", ""}, method = RequestMethod.GET )
 	@ResponseBody //Skip thymeleaf
 	List<BookModel> books() {
 		return service.getBooks();
 	}
 	
+	@RequestMapping(method = RequestMethod.POST, value = {"/", ""})
+	@ResponseBody //Skip thymeleaf
+	void addBook(@RequestBody BookModel book) throws HttpClientErrorException {
+		try {
+			service.addBook(book);
+		} catch (NullPointerException e) {
+			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "The content of the record is null");
+		}
+	}
 	
 	@RequestMapping("/{id}")
 	@ResponseBody //Skip thymeleaf

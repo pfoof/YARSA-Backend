@@ -1,6 +1,81 @@
 <!DOCTYPE html>
 <HTML>
+	<HEAD>
+		<LINK REL="Stylesheet" TYPE="text/css" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}" />
+		<LINK REL="Stylesheet" TYPE="text/css" th:href="@{/webjars/jquery-ui/jquery-ui.min.css}" />
+		
+		<script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    	<script th:src="@{/webjars/jquery-ui/jquery-ui.min.js}"></script>
+    	<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+		
+		<SCRIPT TYPE="text/javascript">
+			function formBook(book) {
+				return $("<li>")
+					.on("click", function() {
+						bookDetails(book.id);
+					})
+					.html(book.author + " - " + book.title);
+			}
+			
+			function bookDetails(id) {
+				$("#book-details").remove();
+				$("<div>").attr("id", "book-details").appendTo(document.body);
+				
+				$.get("/books/"+id, function(response){
+					$("#book-details").html(response.author + " - " + response.title).dialog();
+				});
+			}
+			
+			function addBook() {
+				var title = $("#title").val();
+				var author = $("#author").val();
+				var bookStructure = {
+					"title": title,
+					"author": author
+				};
+				
+				$.ajax({
+					url: "/books/",
+					method: "POST",
+					processData: false,
+					contentType: "application/json",
+					data: JSON.stringify(bookStructure),
+					mimeType: "application/json",
+					success: function(data, status, xhr) {
+						$("#title").val("");
+						$("#author").val("");
+						books();
+					}
+				});
+			}
+		
+			function books() {
+				$("#list").html("");
+				$.get("/books/", function(response){
+					for(var i = 0; i< response.length; ++i) {
+						formBook(response[i]).appendTo("#list");
+					}
+				});
+			}
+			
+			$(function(){
+				$("#books-refresh").on("click", function() {books();});
+				$("#books-add").on("click", function() {addBook();});
+			});
+		</SCRIPT>
+	</HEAD>
 	<BODY>
-		<H1>Pabis.eu</H1>
+		<H2>YARSA - Books @ Pabis.eu</H2>
+		
+		<BUTTON CLASS="btn-secondary" ID="books-refresh">Refresh</BUTTON>
+		<DIV>
+			<INPUT TYPE="text" PLACEHOLDER="Title" ID="title" />
+			<INPUT TYPE="text" PLACEHOLDER="Author" ID="author" />
+			<BUTTON CLASS="btn-primary" ID="books-add">Add</BUTTON> 
+		</DIV>
+		<UL ID="list">
+			
+		</UL>
+		
 	</BODY>
 </HTML>
