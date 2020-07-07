@@ -52,13 +52,6 @@
   </build>
  
  <dependencies>
- 
- 	<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
-	<dependency>
-	    <groupId>org.springframework.boot</groupId>
-	    <artifactId>spring-boot-starter-test</artifactId>
-	    <scope>test</scope>
-	</dependency>
 	
 	<!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter -->
 	<dependency>
@@ -103,6 +96,7 @@
 		<artifactId>spring-boot-starter-thymeleaf</artifactId>
 	</dependency>
 	
+	<!-- Javascript/CSS imports -->
 	<dependency>
       <groupId>org.webjars</groupId>
       <artifactId>jquery</artifactId>
@@ -124,10 +118,27 @@
       <version>0.30</version>
     </dependency>
     
+    <!-- Postgre -->
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
     </dependency>
+    
+    <!-- TEST -->
+    <!-- - - - -->
+    <dependency>
+    	<groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.6.2</version>
+            <scope>test</scope>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-test -->
+	<dependency>
+	    <groupId>org.springframework.boot</groupId>
+	    <artifactId>spring-boot-starter-test</artifactId>
+	    <scope>test</scope>
+	</dependency>
+	
  </dependencies>
  
 </project>
