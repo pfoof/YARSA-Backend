@@ -96,6 +96,11 @@
 		<artifactId>spring-boot-starter-thymeleaf</artifactId>
 	</dependency>
 	
+	<dependency>
+		<groupId>org.springframework.security</groupId>
+		<artifactId>spring-security-crypto</artifactId>
+	</dependency>
+	
 	<!-- Javascript/CSS imports -->
 	<dependency>
       <groupId>org.webjars</groupId>
