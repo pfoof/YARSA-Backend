@@ -27,5 +27,17 @@ public class BookModel {
 		this(author, title);
 		this.id = id;
 	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return (obj instanceof BookModel && ((BookModel)obj).id.equalsIgnoreCase(id)); 
+	}
+
+	@Override
+	public int hashCode() {
+		return author.hashCode() + title.hashCode() + id.hashCode();
+	}
+	
+	
 	
 }
