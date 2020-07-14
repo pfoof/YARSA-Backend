@@ -106,6 +106,13 @@
 		<artifactId>spring-boot-starter-jdbc</artifactId>
 	</dependency>
 	
+	<!-- Validator -->
+	
+	<dependency>
+	    <groupId>javax.validation</groupId>
+	    <artifactId>validation-api</artifactId>
+	</dependency>
+	
 	<!-- Javascript/CSS imports -->
 	<dependency>
       <groupId>org.webjars</groupId>

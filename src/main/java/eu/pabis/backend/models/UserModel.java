@@ -1,21 +1,23 @@
 package eu.pabis.backend.models;
 
-import java.io.ByteArrayOutputStream;
-import java.security.SecureRandom;
-import java.util.Arrays;
-import java.util.Base64;
 import java.util.UUID;
-import java.util.stream.Stream;
+
+import javax.validation.constraints.*;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class UserModel {
 
 	public String id;
 	
+	@NotNull(message = "Username should not be empty!")
+	@Size(min = 3, max = 20, message = "Username should be between 3 and 20 chars.")
+	@Pattern(regexp = "[A-Za-z0-9_-]+", message = "Username should only contain alphanumeric characters, '-' and '_'.")
 	public String username;
+	
+	@Email(message = "Email should be a valid address!")
 	public String email;
+	
 	public String passwordHash; // As Blowfish
 	
 	public UserModel() {

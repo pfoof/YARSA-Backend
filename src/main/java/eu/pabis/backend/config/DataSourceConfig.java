@@ -1,13 +1,9 @@
 package eu.pabis.backend.config;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
-
 import javax.sql.DataSource;
 
-import org.postgresql.Driver;
 import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.jdbc.DatabaseDriver;
 import org.springframework.context.annotation.Bean;
@@ -19,14 +15,25 @@ public class DataSourceConfig {
 	@Bean
 	public DataSource getDataSource() throws URISyntaxException {
 		DataSourceBuilder builder = DataSourceBuilder.create();
-		String dbUrl = System.getenv("DATABASE_URL").replaceAll("postgres", "postgresql");
+		String dbUrl = System.getenv("DATABASE_URL");
 		URI uri = new URI(dbUrl);
-		String user_password = uri.getUserInfo();
-		builder.url("jdbc:" + uri.getScheme() + "://" + uri.getHost() + ":" + uri.getPort() + uri.getPath());
-		builder.username(user_password.split(":")[0]);
-		builder.password(user_password.split(":")[1]);
+		builder.url(getURL(uri));
+		builder.username(getUsername(uri));
+		builder.password(getPassword(uri));
 		builder.driverClassName( DatabaseDriver.POSTGRESQL.getDriverClassName() );
 		return builder.build();
+	}
+	
+	public static String getUsername(URI uri) {
+		return uri.getUserInfo().split(":")[0];
+	}
+	
+	public static String getPassword(URI uri) {
+		return uri.getUserInfo().split(":")[1];
+	}
+	
+	public static String getURL(URI uri) {
+		return "jdbc:" + uri.getScheme().replaceAll("postgres", "postgresql") + "://" + uri.getHost() + ":" + uri.getPort() + uri.getPath();
 	}
 	
 }
