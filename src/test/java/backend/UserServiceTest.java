@@ -4,18 +4,27 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.sql.SQLException;
 import java.util.UUID;
 
 import javax.sql.DataSource;
 
+import org.junit.Before;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.util.TestPropertyValues;
 import org.springframework.context.ApplicationContextInitializer;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcDaoSupport;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import eu.pabis.backend.Main;
 import eu.pabis.backend.config.DataSourceConfig;
@@ -28,6 +37,7 @@ import eu.pabis.backend.users.WrongUsernameException;
 
 @ContextConfiguration(initializers = { UserServiceTest.Initializer.class } )
 @SpringBootTest(classes = { DataSourceConfig.class, DataSource.class, UserModel.class, UserService.class })
+@TestMethodOrder(OrderAnnotation.class)
 public class UserServiceTest {
  
     static class Initializer
@@ -48,11 +58,16 @@ public class UserServiceTest {
         }
     }
 	
-    @Autowired
-	DataSource dataSource;
+	public static DataSource dataSource;
     
-	@Autowired
-	UserService service;
+	public static UserService service;
+	
+	@BeforeAll
+	public static void prepareService() throws URISyntaxException, SQLException {
+		dataSource = new DataSourceConfig().getDataSource();
+		service = new UserService(dataSource);
+		//ReflectionTestUtils.setField(UserService.class, "dataSource", dataSource);
+	}
 	
 	UserModel user;
 	private final String PROPER_PASSWORD = "passwordTest123";
@@ -62,7 +77,7 @@ public class UserServiceTest {
 	private final String[] BAD_EMAILS = {"foobar", "", null};
 	private final String[] BAD_USERNAMES = { "f", "", null, "!Aaaa!" };
 	
-	@Test @DisplayName("Testing register validation")
+	@Test @DisplayName("Testing register validation") @Order(1)
 	public void userRegisterValidate() {
 		
 		for(String badPassword : BAD_PASSWORDS)
@@ -85,7 +100,7 @@ public class UserServiceTest {
 		});
 	}
 	
-	@Test @DisplayName("Testing user search by username")
+	@Test @DisplayName("Testing user search by username") @Order(2)
 	public void userFindUsername() {
 		user = service.findUserByUsername(PROPER_USERNAME);
 		assertNotNull(user);
@@ -93,23 +108,28 @@ public class UserServiceTest {
 		assertTrue(user.username.equals(PROPER_USERNAME));
 		assertTrue(user.email.equals(PROPER_EMAIL));
 		assertTrue(user.verifyPassword(PROPER_PASSWORD));
+		Test_id = user.id;
+		Test_username = user.username;
 		
 		UserModel nonExistent = service.findUserByUsername("helloworld");
 		assertNull(nonExistent);
 	}
 	
-	@Test @DisplayName("Testing user search by id")
+	public static String Test_id;
+	public static String Test_username;
+	
+	@Test @DisplayName("Testing user search by id") @Order(3)
 	public void userFindId() {
-		UserModel user2 = service.findUserById(user.id);
+		UserModel user2 = service.findUserById(Test_id);
 		
 		assertNotNull(user2);
-		assertTrue(user.username.equals(user2.username));
+		assertTrue(Test_username.equals(user2.username));
 		
 		user2 = service.findUserById(UUID.randomUUID().toString());
 		assertNull(user2);
 	}
 	
-	@Test @DisplayName("Testing user password change")
+	@Test @DisplayName("Testing user password change") @Order(4)
 	public void userChangePassword() {
 		assertThrows(NoSuchUserException.class, () -> {
 			service.updatePassword(UUID.randomUUID().toString(), PROPER_PASSWORD, PROPER_PASSWORD);
@@ -117,29 +137,29 @@ public class UserServiceTest {
 		
 		for(String badPassword: BAD_PASSWORDS)
 			assertThrows(WrongPasswordException.class, () -> {
-				service.updatePassword(user.id, badPassword, PROPER_PASSWORD);
+				service.updatePassword(Test_id, badPassword, PROPER_PASSWORD);
 			});
 		
 		for(String badPassword : BAD_PASSWORDS)
 			assertThrows(WrongPasswordException.class, () -> {
-				service.updatePassword(user.id, PROPER_PASSWORD, badPassword);
+				service.updatePassword(Test_id, PROPER_PASSWORD, badPassword);
 			});
 		
 		assertDoesNotThrow(() -> {
-			service.updatePassword(user.id, PROPER_PASSWORD, PROPER_PASSWORD + "1");
+			service.updatePassword(Test_id, PROPER_PASSWORD, PROPER_PASSWORD + "1");
 		});
 	}
 	
-	@Test @DisplayName("Testing user deletion")
+	@Test @DisplayName("Testing user deletion") @Order(5)
 	public void userDelete() {
 		assertThrows(NoSuchUserException.class, () -> {
 			service.deleteUser(UUID.randomUUID().toString());
 		});
 		
 		assertDoesNotThrow(() -> {
-			service.deleteUser(user.id);
+			service.deleteUser(Test_id);
 		});
 		
-		assertNull(service.findUserById(user.id));
+		assertNull(service.findUserById(Test_id));
 	}
 }

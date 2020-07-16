@@ -1,5 +1,7 @@
 package eu.pabis.backend.services;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Set;
 
@@ -9,6 +11,8 @@ import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -51,25 +55,37 @@ public class UserService {
 		
 	}
 	
-	private NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
+	private NamedParameterJdbcTemplate template = null;
 	
 	public static final String SCHEMA = "CREATE TABLE IF NOT EXISTS users (\n" + 
-			"    id varchar(128)  NOT NULL,\n" + 
-			"    username varchar(32)  NOT NULL,\n" + 
-			"    email varchar(200)  NOT NULL,\n" + 
-			"    passwordHash varchar(200) NOT NULL,\n" + 
-			"    CONSTRAINT uinque_username UNIQUE (username) NOT DEFERRABLE  INITIALLY IMMEDIATE,\n" + 
-			"    CONSTRAINT unique_email UNIQUE (email) NOT DEFERRABLE  INITIALLY IMMEDIATE,\n" + 
-			"    CONSTRAINT users_pk PRIMARY KEY (id)\n" + 
+			"    "+UserRowMapper.ID+" varchar(128)  NOT NULL,\n" + 
+			"    "+UserRowMapper.USERNAME+" varchar(32)  NOT NULL,\n" + 
+			"    "+UserRowMapper.EMAIL+" varchar(200)  NOT NULL,\n" + 
+			"    "+UserRowMapper.PASSWORD+" varchar(200) NOT NULL,\n" + 
+			"    CONSTRAINT uinque_username UNIQUE ("+UserRowMapper.USERNAME+") NOT DEFERRABLE  INITIALLY IMMEDIATE,\n" + 
+			"    CONSTRAINT unique_email UNIQUE ("+UserRowMapper.EMAIL+") NOT DEFERRABLE  INITIALLY IMMEDIATE,\n" + 
+			"    CONSTRAINT users_pk PRIMARY KEY ("+UserRowMapper.ID+")\n" + 
 			");\n" + 
 			"\n" + 
-			"CREATE INDEX ID_Index on users (id ASC);\n" + 
+			"CREATE INDEX IF NOT EXISTS ID_Index on users ("+UserRowMapper.ID+" ASC);\n" + 
 			"\n" + 
-			"CREATE INDEX username_index on users (username ASC);";
+			"CREATE INDEX IF NOT EXISTS username_index on users ("+UserRowMapper.USERNAME+" ASC);";
 	
-	public UserService() {
-		
-		template.execute(SCHEMA, null);
+	public UserService() throws SQLException{
+		if(dataSource != null) {
+			template = new NamedParameterJdbcTemplate(dataSource);
+			initDatabase();
+		}
+	}
+	
+	public UserService(DataSource dataSource) throws SQLException {
+		this.dataSource = dataSource;
+		template = new NamedParameterJdbcTemplate(dataSource);
+		initDatabase();
+	}
+	
+	private void initDatabase() throws SQLException {
+		dataSource.getConnection().createStatement().execute(SCHEMA);
 	}
 	
 	public UserModel findUserById(String id) {
@@ -113,7 +129,7 @@ public class UserService {
 		final String sql = String.format("UPDATE users SET %s = :password WHERE %s = :id", UserRowMapper.PASSWORD, UserRowMapper.ID);
 		SqlParameterSource params = new MapSqlParameterSource()
 				.addValue("id", user.id)
-				.addValue(password, user.passwordHash);
+				.addValue("password", user.passwordHash);
 		template.update(sql, params);
 	}
 	

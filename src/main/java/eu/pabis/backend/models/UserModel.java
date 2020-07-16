@@ -16,6 +16,8 @@ public class UserModel {
 	public String username;
 	
 	@Email(message = "Email should be a valid address!")
+	@NotBlank(message = "Email must not be blank!")
+	@NotNull(message = "Email must not be blank!")
 	public String email;
 	
 	public String passwordHash; // As Blowfish
@@ -41,6 +43,7 @@ public class UserModel {
 	}
 	
 	public boolean changePassword(String currentPassword, String newPassword) {
+		if(currentPassword == null || newPassword == null) return false;
 		if(verifyPassword(currentPassword)) {
 			passwordHash = BCrypt.hashpw(newPassword, BCrypt.gensalt());
 			return true;
