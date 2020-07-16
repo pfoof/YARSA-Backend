@@ -33,6 +33,9 @@ public class UserService {
 	@Autowired
 	DataSource dataSource;
 	
+	@Autowired
+	SessionService sessionService;
+	
 	public void registerUser(String email, String username, String password)
 			throws WrongPasswordException, WrongUsernameException, WrongEmailException {
 		
@@ -53,6 +56,20 @@ public class UserService {
 			}
 		}
 		
+	}
+	
+	public String loginUser(String username, String password) 
+		throws WrongPasswordException, WrongUsernameException {
+		
+		UserModel user = findUserByUsername(username);
+		
+		if(user == null)
+			throw new WrongUsernameException("No such user!");
+		
+		if(user.verifyPassword(password)) {
+			return sessionService.createSessionForUser(user.id);
+		} else
+			throw new WrongPasswordException("Password is wrong!");
 	}
 	
 	private NamedParameterJdbcTemplate template = null;
