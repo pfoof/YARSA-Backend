@@ -1,4 +1,4 @@
-package eu.pabis.backend.users;
+package eu.pabis.backend.exceptions;
 
 public class WrongEmailException extends Exception {
 	public WrongEmailException(String string) {

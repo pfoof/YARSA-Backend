@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpClientErrorException;
 
+import eu.pabis.backend.exceptions.BadBookParametersException;
 import eu.pabis.backend.models.BookModel;
 import eu.pabis.backend.services.BookService;
 
@@ -39,6 +40,8 @@ public class BooksController {
 			return service.addBook(book);
 		} catch (NullPointerException e) {
 			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "The content of the record is null");
+		} catch (BadBookParametersException e) {
+			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
 	}
 	

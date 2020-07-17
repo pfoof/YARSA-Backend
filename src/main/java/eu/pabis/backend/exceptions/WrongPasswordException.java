@@ -1,4 +1,4 @@
-package eu.pabis.backend.users;
+package eu.pabis.backend.exceptions;
 
 public class WrongPasswordException extends Exception {
 

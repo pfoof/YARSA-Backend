@@ -3,6 +3,8 @@ package eu.pabis.backend.services;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.sql.DataSource;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +15,9 @@ public class BookSearchService {
 
 	@Autowired
 	private BookService bookService;
+	
+	@Autowired
+	private DataSource dataSource;
 	
 	public List<BookModel> booksByTitlePrefix(String prefix) {
 		ArrayList<BookModel> results = new ArrayList<BookModel>();

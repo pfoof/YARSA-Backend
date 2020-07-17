@@ -1,4 +1,4 @@
-package eu.pabis.backend.users;
+package eu.pabis.backend.mappers;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

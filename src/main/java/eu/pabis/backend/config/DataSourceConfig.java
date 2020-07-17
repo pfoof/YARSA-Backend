@@ -8,6 +8,7 @@ import org.springframework.boot.jdbc.DataSourceBuilder;
 import org.springframework.boot.jdbc.DatabaseDriver;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 
 @Configuration
 public class DataSourceConfig {
@@ -21,7 +22,13 @@ public class DataSourceConfig {
 		builder.username(getUsername(uri));
 		builder.password(getPassword(uri));
 		builder.driverClassName( DatabaseDriver.POSTGRESQL.getDriverClassName() );
+	
 		return builder.build();
+	}
+	
+	@Bean
+	public NamedParameterJdbcTemplate getNamedParameterJdbcTemplate() throws URISyntaxException {
+		return new NamedParameterJdbcTemplate(getDataSource());
 	}
 	
 	public static String getUsername(URI uri) {

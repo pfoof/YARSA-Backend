@@ -20,12 +20,12 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
+import eu.pabis.backend.exceptions.NoSuchUserException;
+import eu.pabis.backend.exceptions.WrongEmailException;
+import eu.pabis.backend.exceptions.WrongPasswordException;
+import eu.pabis.backend.exceptions.WrongUsernameException;
+import eu.pabis.backend.mappers.UserRowMapper;
 import eu.pabis.backend.models.UserModel;
-import eu.pabis.backend.users.NoSuchUserException;
-import eu.pabis.backend.users.UserRowMapper;
-import eu.pabis.backend.users.WrongEmailException;
-import eu.pabis.backend.users.WrongPasswordException;
-import eu.pabis.backend.users.WrongUsernameException;
 
 @Service
 public class UserService {

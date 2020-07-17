@@ -20,11 +20,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpClientErrorException;
 
+import eu.pabis.backend.exceptions.WrongEmailException;
+import eu.pabis.backend.exceptions.WrongPasswordException;
+import eu.pabis.backend.exceptions.WrongUsernameException;
 import eu.pabis.backend.models.UserModel;
 import eu.pabis.backend.services.SessionService;
 import eu.pabis.backend.services.UserService;
-import eu.pabis.backend.users.WrongPasswordException;
-import eu.pabis.backend.users.WrongUsernameException;
 
 @Controller
 @RequestMapping("/user")
@@ -82,6 +83,17 @@ public class UserController {
 		removeCookie.setMaxAge(0);
 		removeCookie.setPath("/");
 		response.addCookie(removeCookie);
+	}
+	
+	@RequestMapping( value = "/register", method = RequestMethod.POST )
+	@ResponseBody
+	public String register(@RequestParam String username, @RequestParam String email, @RequestParam String password, HttpServletRequest request, HttpServletResponse response) {
+		try {
+			userService.registerUser(email, username, password);
+		} catch (WrongPasswordException | WrongUsernameException | WrongEmailException e) {
+			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
+		}
+		return "{\"success\":\"1\"}";
 	}
 	
 	private void setSessionCookie(HttpServletResponse response, String key) {

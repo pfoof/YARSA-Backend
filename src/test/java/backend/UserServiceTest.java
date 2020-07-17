@@ -28,12 +28,12 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import eu.pabis.backend.Main;
 import eu.pabis.backend.config.DataSourceConfig;
+import eu.pabis.backend.exceptions.NoSuchUserException;
+import eu.pabis.backend.exceptions.WrongEmailException;
+import eu.pabis.backend.exceptions.WrongPasswordException;
+import eu.pabis.backend.exceptions.WrongUsernameException;
 import eu.pabis.backend.models.UserModel;
 import eu.pabis.backend.services.UserService;
-import eu.pabis.backend.users.NoSuchUserException;
-import eu.pabis.backend.users.WrongEmailException;
-import eu.pabis.backend.users.WrongPasswordException;
-import eu.pabis.backend.users.WrongUsernameException;
 
 @ContextConfiguration(initializers = { UserServiceTest.Initializer.class } )
 @SpringBootTest(classes = { DataSourceConfig.class, DataSource.class, UserModel.class, UserService.class })
