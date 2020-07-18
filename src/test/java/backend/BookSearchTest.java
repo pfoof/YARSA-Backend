@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import eu.pabis.backend.exceptions.BadBookParametersException;
 import eu.pabis.backend.models.BookModel;
 import eu.pabis.backend.services.BookSearchService;
 import eu.pabis.backend.services.BookService;
@@ -27,13 +28,20 @@ public class BookSearchTest {
 	BookModel book1 = new BookModel("Tolkien JRR", "Hobbit");
 	BookModel book2 = new BookModel("Tolkien JRR", "Lord of the Rings");
 	BookModel book3 = new BookModel("Kiyosaki Robert", "Rich dad, Poor dad");
+	BookModel badBook = new BookModel("", "");
 	
 	@Test @DisplayName("Testing search by title")
 	public void testSearchTitle() {
 		
-		bookService.addBook(book1);
-		bookService.addBook(book2);
-		bookService.addBook(book3);
+		assertThrows(BadBookParametersException.class, () -> {
+			bookService.addBook(badBook);
+		});
+		
+		assertDoesNotThrow(() -> {
+			bookService.addBook(book1);
+			bookService.addBook(book2);
+			bookService.addBook(book3);
+		});
 		
 		List<BookModel> books_Lord = service.booksByTitlePrefix("Lord"); // "Lord of the Rings"
 		List<BookModel> books_Ri = service.booksByTitlePrefix("Ri"); // "Lord of the Rings", "Rich dad, Poor dad"

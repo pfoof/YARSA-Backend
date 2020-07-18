@@ -32,16 +32,18 @@ public class BooksServiceTest {
 		String recordId = book.id;
 		
 		/* Test if the service returned properly formatted JSON with id */
-		String response = service.addBook(book);
 		assertDoesNotThrow(() -> {
-			JSONObject obj = new JSONObject(response);
-			assertTrue(obj.has("id"));
+			String response = service.addBook(book);
 			assertDoesNotThrow(() -> {
-				obj.getString("id");
+				JSONObject obj = new JSONObject(response);
+				assertTrue(obj.has("id"));
+				assertDoesNotThrow(() -> {
+					obj.getString("id");
+				});
+				assertNotNull(obj.getString("id"));
+				/* Subject to possible change */
+				assertTrue(obj.getString("id").equalsIgnoreCase(recordId));
 			});
-			assertNotNull(obj.getString("id"));
-			/* Subject to possible change */
-			assertTrue(obj.getString("id").equalsIgnoreCase(recordId));
 		});
 		
 		/* Test if the book is inserted into the collection */
