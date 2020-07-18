@@ -6,8 +6,12 @@ import java.util.List;
 import javax.sql.DataSource;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Service;
 
+import eu.pabis.backend.mappers.BookRowMapper;
 import eu.pabis.backend.models.BookModel;
 
 @Service
@@ -19,28 +23,25 @@ public class BookSearchService {
 	@Autowired
 	private DataSource dataSource;
 	
+	@Autowired
+	private NamedParameterJdbcTemplate template;
+	
 	public List<BookModel> booksByTitlePrefix(String prefix) {
-		ArrayList<BookModel> results = new ArrayList<BookModel>();
-		for(BookModel b : bookService.getBooks())
-			for(String t : b.title.split(" "))
-				if(!t.isEmpty() && t.toLowerCase().startsWith(prefix.toLowerCase())) {
-					results.add(b);
-					break;
-				}
-		return results;
+		
+		final String sql = "SELECT * FROM books WHERE ("+BookRowMapper.TITLE+" LIKE :title OR "+BookRowMapper.TITLE+" LIKE '%:title')";
+		SqlParameterSource params = new MapSqlParameterSource()
+				.addValue("title", prefix);
+		
+		return template.query(sql, params, new BookRowMapper());
 	}
 	
 	public List<BookModel> booksByAuthorPrefix(String prefix) {
-		ArrayList<BookModel> results = new ArrayList<BookModel>();
 		
-		for(BookModel b : bookService.getBooks())
-			for(String a : b.author.split(" "))
-				if(!a.isEmpty() && a.toLowerCase().startsWith(prefix.toLowerCase())) {
-					results.add(b);
-					break;
-				}
+		final String sql = "SELECT * FROM books WHERE ("+BookRowMapper.AUTHOR+" LIKE :author OR "+BookRowMapper.AUTHOR+" LIKE '%:author')";
+		SqlParameterSource params = new MapSqlParameterSource()
+				.addValue("author", prefix);
 		
-		return results;
+		return template.query(sql, params, new BookRowMapper());
 	}
 	
 }

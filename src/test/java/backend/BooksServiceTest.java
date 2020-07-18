@@ -2,31 +2,72 @@ package backend;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.util.TestPropertyValues;
+import org.springframework.context.ApplicationContextInitializer;
+import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.test.context.ContextConfiguration;
 
+import eu.pabis.backend.config.DataSourceConfig;
 import eu.pabis.backend.models.BookModel;
 import eu.pabis.backend.services.BookService;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.sql.SQLException;
 import java.util.List;
 
-import org.json.JSONObject;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import javax.sql.DataSource;
 
-@SpringBootTest(classes = BookService.class)
+import org.json.JSONObject;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
+import org.junit.jupiter.api.Order;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+
+@ContextConfiguration( initializers = {backend.UserServiceTest.Initializer.class} )
+@SpringBootTest(classes = { BookService.class, DataSourceConfig.class })
+@TestMethodOrder(OrderAnnotation.class)
 public class BooksServiceTest {
 	
-	@Autowired
-	BookService service;
+    static class Initializer
+    implements ApplicationContextInitializer<ConfigurableApplicationContext> {
+      public void initialize(ConfigurableApplicationContext configurableApplicationContext) {
+      	String dbUrl = System.getenv("DATABASE_URL");
+  		URI uri;
+			try {
+				uri = new URI(dbUrl);
+				TestPropertyValues.of(
+			              "spring.datasource.url=" + DataSourceConfig.getURL(uri),
+			              "spring.datasource.username=" + DataSourceConfig.getUsername(uri),
+			              "spring.datasource.password=" + DataSourceConfig.getPassword(uri)
+			            ).applyTo(configurableApplicationContext.getEnvironment());
+			} catch (URISyntaxException e) {
+				e.printStackTrace();
+			}
+      }
+  }
 	
-	@Test @DisplayName("Testing inexistent book (null)")
+    @Autowired
+    DataSource dataSource;
+	
+    private static BookService service;
+    
+    @BeforeAll
+    public static void prepare() throws SQLException, URISyntaxException {
+    	service = new BookService(new DataSourceConfig().getDataSource());
+    }
+	
+	@Test @DisplayName("Testing inexistent book (null)") @Order(2)
 	void testNull() {
 		BookModel book = service.getBook("blahblah");
 		assertNull(book);
 	}
 	
-	@Test @DisplayName("Testing adding book")
+	@Test @DisplayName("Testing adding book") @Order(1)
 	void testAdd() {
 		BookModel book = new BookModel("Junit", "Test");
 		String recordId = book.id;
@@ -52,14 +93,14 @@ public class BooksServiceTest {
 		assertTrue(book.title.equalsIgnoreCase(fetchedBook.title));
 	}
 	
-	@Test @DisplayName("Testing null adds")
+	@Test @DisplayName("Testing null adds") @Order(3)
 	void testAddNull() {
 		assertThrows(NullPointerException.class, () -> {
 			service.addBook(null);
 		});
 	}
 	
-	@Test @DisplayName("Testing all books fetching")
+	@Test @DisplayName("Testing all books fetching") @Order(4)
 	void testGetAll() {
 		List<BookModel> books = service.getBooks();
 		
@@ -67,7 +108,7 @@ public class BooksServiceTest {
 		assertTrue(books.size() > 0);
 	}
 	
-	@Test @DisplayName("Testing deletion")
+	@Test @DisplayName("Testing deletion") @Order(5)
 	void testDelete() {
 		List<BookModel> books = service.getBooks();
 		int size = books.size();
@@ -98,7 +139,7 @@ public class BooksServiceTest {
 		assertEquals(size - 1, service.getBooks().size());
 	}
 	
-	@Test @DisplayName("Testing null deletion")
+	@Test @DisplayName("Testing null deletion") @Order(6)
 	void testDeleteInexistent() {
 		
 		assertThrows(NullPointerException.class, () -> {
