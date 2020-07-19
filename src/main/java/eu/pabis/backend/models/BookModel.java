@@ -36,7 +36,13 @@ public class BookModel {
 
 	@Override
 	public boolean equals(Object obj) {
-		return (obj instanceof BookModel && ((BookModel)obj).id.equalsIgnoreCase(id)); 
+		return (obj instanceof BookModel && (
+				((BookModel)obj).id.equalsIgnoreCase(id))
+				|| (
+						((BookModel)obj).title.equalsIgnoreCase(title) &&
+						((BookModel)obj).author.equalsIgnoreCase(author)
+					)
+				); 
 	}
 
 	@Override

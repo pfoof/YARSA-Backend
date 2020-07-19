@@ -28,18 +28,26 @@ public class BookSearchService {
 	
 	public List<BookModel> booksByTitlePrefix(String prefix) {
 		
-		final String sql = "SELECT * FROM books WHERE ("+BookRowMapper.TITLE+" LIKE :title OR "+BookRowMapper.TITLE+" LIKE '%:title')";
+		String prefix_asterisk = prefix + "%";
+		String prefix_space_asterisk = "% "+prefix + "%";
+		
+		final String sql = "SELECT * FROM books WHERE ("+BookRowMapper.TITLE+" LIKE :title_asterisk OR "+BookRowMapper.TITLE+" LIKE :title_space_asterisk)";
 		SqlParameterSource params = new MapSqlParameterSource()
-				.addValue("title", prefix);
+				.addValue("title_asterisk", prefix_asterisk)
+				.addValue("title_space_asterisk", prefix_space_asterisk);
 		
 		return template.query(sql, params, new BookRowMapper());
 	}
 	
 	public List<BookModel> booksByAuthorPrefix(String prefix) {
 		
-		final String sql = "SELECT * FROM books WHERE ("+BookRowMapper.AUTHOR+" LIKE :author OR "+BookRowMapper.AUTHOR+" LIKE '%:author')";
+		String prefix_asterisk = prefix + "%";
+		String prefix_space_asterisk = "% "+prefix + "%";
+		
+		final String sql = "SELECT * FROM books WHERE ("+BookRowMapper.AUTHOR+" LIKE :author_asterisk OR "+BookRowMapper.AUTHOR+" LIKE :author_space_asterisk)";
 		SqlParameterSource params = new MapSqlParameterSource()
-				.addValue("author", prefix);
+				.addValue("author_asterisk", prefix_asterisk)
+				.addValue("author_space_asterisk", prefix_space_asterisk);
 		
 		return template.query(sql, params, new BookRowMapper());
 	}
