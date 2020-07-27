@@ -10,16 +10,20 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
+import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.PreparedStatementCallback;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.SQLExceptionTranslator;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
+import eu.pabis.backend.exceptions.AlreadyExistsException;
 import eu.pabis.backend.exceptions.NoSuchUserException;
 import eu.pabis.backend.exceptions.WrongEmailException;
 import eu.pabis.backend.exceptions.WrongPasswordException;
@@ -37,7 +41,7 @@ public class UserService {
 	SessionService sessionService;
 	
 	public void registerUser(String email, String username, String password)
-			throws WrongPasswordException, WrongUsernameException, WrongEmailException {
+			throws WrongPasswordException, WrongUsernameException, WrongEmailException, AlreadyExistsException {
 		
 		// Validating password
 		checkPassword(password);
@@ -46,7 +50,17 @@ public class UserService {
 		
 		Set<ConstraintViolation<UserModel>> violations = Validation.buildDefaultValidatorFactory().getValidator().validate(user);
 		if(violations.isEmpty())
-			insertUser(user);
+			try {
+				insertUser(user);
+			} catch(DataAccessException e) {
+				if(e instanceof DuplicateKeyException && e.getCause() instanceof PSQLException) {
+					String constraint = ( (PSQLException) e.getCause()).getServerErrorMessage().getConstraint();
+					if(constraint != null && constraint.equalsIgnoreCase("unique_username"))
+						throw new AlreadyExistsException("User with this username already exists!");
+					else if(constraint != null && constraint.equalsIgnoreCase("unique_email"))
+						throw new AlreadyExistsException("User with this email already exists!");
+				}
+			}
 		else {
 			for(ConstraintViolation<UserModel> violation : violations) {
 				if(violation.getPropertyPath().toString().contains("username"))
@@ -121,7 +135,7 @@ public class UserService {
 		return user.isEmpty() ? null : user.get(0);
 	}
 	
-	private String insertUser(UserModel userModel) {
+	private String insertUser(UserModel userModel) throws DataAccessException {
 		final String sql = String.format("INSERT INTO users (%s, %s, %s, %s) VALUES (:id, :email, :username, :password)",
 				UserRowMapper.ID, UserRowMapper.EMAIL, UserRowMapper.USERNAME, UserRowMapper.PASSWORD);
 		SqlParameterSource params = new MapSqlParameterSource()

@@ -15,7 +15,7 @@ import eu.pabis.backend.mappers.BookRowMapper;
 import eu.pabis.backend.models.BookModel;
 
 @Service
-public class BookSearchService {
+public class BookSearchService extends AbstractSQLService {
 
 	@Autowired
 	private BookService bookService;
@@ -25,6 +25,7 @@ public class BookSearchService {
 	
 	@Autowired
 	private NamedParameterJdbcTemplate template;
+
 	
 	public List<BookModel> booksByTitlePrefix(String prefix) {
 		

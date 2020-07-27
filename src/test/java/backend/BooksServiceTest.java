@@ -8,6 +8,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 
 import eu.pabis.backend.config.DataSourceConfig;
+import eu.pabis.backend.exceptions.AlreadyExistsException;
 import eu.pabis.backend.models.BookModel;
 import eu.pabis.backend.services.BookService;
 
@@ -70,7 +71,6 @@ public class BooksServiceTest {
 	@Test @DisplayName("Testing adding book") @Order(1)
 	void testAdd() {
 		BookModel book = new BookModel("Junit", "Test");
-		String recordId = book.id;
 		
 		/* Test if the service returned properly formatted JSON with id */
 		assertDoesNotThrow(() -> {
@@ -82,15 +82,17 @@ public class BooksServiceTest {
 					obj.getString("id");
 				});
 				assertNotNull(obj.getString("id"));
-				/* Subject to possible change */
-				assertTrue(obj.getString("id").equalsIgnoreCase(recordId));
+				/* Test if the book is inserted into the collection */
+				BookModel fetchedBook = service.getBook(obj.getString("id"));
+				assertNotNull(fetchedBook);
+				assertTrue(book.author.equalsIgnoreCase(fetchedBook.author));
+				assertTrue(book.title.equalsIgnoreCase(fetchedBook.title));
 			});
 		});
 		
-		/* Test if the book is inserted into the collection */
-		BookModel fetchedBook = service.getBook(recordId);
-		assertTrue(book.author.equalsIgnoreCase(fetchedBook.author));
-		assertTrue(book.title.equalsIgnoreCase(fetchedBook.title));
+		assertThrows(AlreadyExistsException.class, () -> {
+			service.addBook(book);
+		});
 	}
 	
 	@Test @DisplayName("Testing null adds") @Order(3)

@@ -28,15 +28,17 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import eu.pabis.backend.Main;
 import eu.pabis.backend.config.DataSourceConfig;
+import eu.pabis.backend.exceptions.AlreadyExistsException;
 import eu.pabis.backend.exceptions.NoSuchUserException;
 import eu.pabis.backend.exceptions.WrongEmailException;
 import eu.pabis.backend.exceptions.WrongPasswordException;
 import eu.pabis.backend.exceptions.WrongUsernameException;
 import eu.pabis.backend.models.UserModel;
+import eu.pabis.backend.services.SessionService;
 import eu.pabis.backend.services.UserService;
 
 @ContextConfiguration(initializers = { UserServiceTest.Initializer.class } )
-@SpringBootTest(classes = { DataSourceConfig.class, DataSource.class, UserModel.class, UserService.class })
+@SpringBootTest(classes = { DataSourceConfig.class, DataSource.class, UserModel.class, UserService.class, SessionService.class })
 @TestMethodOrder(OrderAnnotation.class)
 public class UserServiceTest {
  
@@ -96,6 +98,10 @@ public class UserServiceTest {
 			});
 		
 		assertDoesNotThrow(() -> {
+			service.registerUser(PROPER_EMAIL, PROPER_USERNAME, PROPER_PASSWORD);
+		});
+		
+		assertThrows(AlreadyExistsException.class, () -> {
 			service.registerUser(PROPER_EMAIL, PROPER_USERNAME, PROPER_PASSWORD);
 		});
 	}

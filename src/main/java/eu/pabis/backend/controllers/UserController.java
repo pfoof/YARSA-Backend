@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpClientErrorException;
 
+import eu.pabis.backend.exceptions.AlreadyExistsException;
 import eu.pabis.backend.exceptions.WrongEmailException;
 import eu.pabis.backend.exceptions.WrongPasswordException;
 import eu.pabis.backend.exceptions.WrongUsernameException;
@@ -90,7 +92,7 @@ public class UserController {
 	public String register(@RequestParam String username, @RequestParam String email, @RequestParam String password, HttpServletRequest request, HttpServletResponse response) {
 		try {
 			userService.registerUser(email, username, password);
-		} catch (WrongPasswordException | WrongUsernameException | WrongEmailException e) {
+		} catch (WrongPasswordException | WrongUsernameException | WrongEmailException | AlreadyExistsException e) {
 			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
 		return "{\"success\":\"1\"}";

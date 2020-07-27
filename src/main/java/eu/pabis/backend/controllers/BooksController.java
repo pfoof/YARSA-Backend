@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpClientErrorException;
 
+import eu.pabis.backend.exceptions.AlreadyExistsException;
 import eu.pabis.backend.exceptions.BadBookParametersException;
+import eu.pabis.backend.exceptions.UnknownException;
 import eu.pabis.backend.models.BookModel;
 import eu.pabis.backend.services.BookService;
 
@@ -42,6 +44,10 @@ public class BooksController {
 			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "The content of the record is null");
 		} catch (BadBookParametersException e) {
 			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
+		} catch(AlreadyExistsException e) {
+			throw new HttpClientErrorException(HttpStatus.CONFLICT, e.getMessage());
+		} catch(UnknownException e) {
+			throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}
 	

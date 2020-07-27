@@ -4,6 +4,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 import javax.sql.DataSource;
 import javax.validation.ConstraintViolation;
@@ -11,14 +12,19 @@ import javax.validation.Validation;
 import javax.validation.ValidatorFactory;
 
 import org.hibernate.validator.internal.engine.ValidatorFactoryImpl;
+import org.postgresql.util.PSQLException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.Validator;
 
+import eu.pabis.backend.exceptions.AlreadyExistsException;
 import eu.pabis.backend.exceptions.BadBookParametersException;
+import eu.pabis.backend.exceptions.UnknownException;
 import eu.pabis.backend.mappers.BookRowMapper;
 import eu.pabis.backend.models.BookModel;
 
@@ -83,8 +89,9 @@ public class BookService {
 		return target;
 	}
 	
-	public String addBook(BookModel book) throws NullPointerException, BadBookParametersException {
+	public String addBook(BookModel book) throws NullPointerException, BadBookParametersException, AlreadyExistsException, UnknownException {
 		if(book != null) {
+			book.id = UUID.randomUUID().toString();
 			validateBook(book);
 			
 			final String sql = "INSERT INTO books ("+BookRowMapper.ID+","+BookRowMapper.TITLE+","+BookRowMapper.AUTHOR+") VALUES (:id,:title,:author)";
@@ -92,7 +99,16 @@ public class BookService {
 					.addValue("id", book.id)
 					.addValue("title", book.title)
 					.addValue("author", book.author);
-			template.update(sql, params);
+			try {
+				template.update(sql, params);
+			} catch(DataAccessException e) {
+				if(e instanceof DuplicateKeyException && e.getCause() instanceof PSQLException) {
+					String constraint = ((PSQLException) e.getCause()).getServerErrorMessage().getConstraint();
+					if(constraint != null && constraint.equalsIgnoreCase("books_author_title"))
+						throw new AlreadyExistsException("Book with this title of this author already exists!");
+					else throw new UnknownException("Unknown exception occured!");
+				}
+			}
 			
 			return idToJson(book.id);
 		} else throw new NullPointerException();
