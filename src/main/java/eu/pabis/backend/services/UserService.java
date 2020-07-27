@@ -59,6 +59,8 @@ public class UserService {
 						throw new AlreadyExistsException("User with this username already exists!");
 					else if(constraint != null && constraint.equalsIgnoreCase("unique_email"))
 						throw new AlreadyExistsException("User with this email already exists!");
+					else
+						throw new RuntimeException(e);
 				}
 			}
 		else {
