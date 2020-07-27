@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -30,7 +31,7 @@ import eu.pabis.backend.models.UserModel;
 import eu.pabis.backend.services.SessionService;
 import eu.pabis.backend.services.UserService;
 
-@Controller
+@RestController
 @RequestMapping("/user")
 public class UserController {
 
