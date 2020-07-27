@@ -55,7 +55,6 @@ public class UserService {
 			} catch(DataAccessException e) {
 				if(e.getCause() instanceof PSQLException) {
 					String constraint = ( (PSQLException) e.getCause()).getServerErrorMessage().getConstraint();
-					System.err.println(constraint);
 					if(constraint != null && constraint.equalsIgnoreCase("unique_username"))
 						throw new AlreadyExistsException("User with this username already exists!");
 					else if(constraint != null && constraint.equalsIgnoreCase("unique_email"))
@@ -95,7 +94,7 @@ public class UserService {
 			"    "+UserRowMapper.USERNAME+" varchar(32)  NOT NULL,\n" + 
 			"    "+UserRowMapper.EMAIL+" varchar(200)  NOT NULL,\n" + 
 			"    "+UserRowMapper.PASSWORD+" varchar(200) NOT NULL,\n" + 
-			"    CONSTRAINT uinque_username UNIQUE ("+UserRowMapper.USERNAME+") NOT DEFERRABLE  INITIALLY IMMEDIATE,\n" + 
+			"    CONSTRAINT unique_username UNIQUE ("+UserRowMapper.USERNAME+") NOT DEFERRABLE  INITIALLY IMMEDIATE,\n" + 
 			"    CONSTRAINT unique_email UNIQUE ("+UserRowMapper.EMAIL+") NOT DEFERRABLE  INITIALLY IMMEDIATE,\n" + 
 			"    CONSTRAINT users_pk PRIMARY KEY ("+UserRowMapper.ID+")\n" + 
 			");\n" + 
