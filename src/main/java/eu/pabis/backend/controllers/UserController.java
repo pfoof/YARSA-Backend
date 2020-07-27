@@ -69,9 +69,9 @@ public class UserController {
 			setSessionCookie(response, session);
 			return session;
 		} catch (WrongUsernameException e) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bad credentials!");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bad credentials!", e);
 		} catch (WrongPasswordException e) {
-			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bad credentials!");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bad credentials!", e);
 		}
 		
 	}
