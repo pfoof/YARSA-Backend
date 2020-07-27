@@ -63,6 +63,7 @@ public class UserController {
 	@ResponseBody
 	public String login(@RequestParam String username, @RequestParam String password, HttpServletResponse response) throws HttpClientErrorException {
 		try {
+			System.out.println("Logging in user: "+username);
 			String session = userService.loginUser(username, password);
 			setSessionCookie(response, session);
 			return session;
