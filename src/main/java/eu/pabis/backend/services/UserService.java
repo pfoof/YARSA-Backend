@@ -132,7 +132,7 @@ public class UserService {
 		SqlParameterSource params = new MapSqlParameterSource()
 				.addValue("username", username);
 		List<UserModel> user = template.query(sql, params, new UserRowMapper());
-		return user.isEmpty() ? null : user.get(0);
+		return (user == null || user.isEmpty()) ? null : user.get(0);
 	}
 	
 	private String insertUser(UserModel userModel) throws DataAccessException {
