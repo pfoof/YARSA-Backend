@@ -68,7 +68,7 @@ public class UserController {
 			System.out.println("Logging in user: "+username);
 			String session = userService.loginUser(username, password);
 			setSessionCookie(response, session);
-			return session;
+			return "{"+session;
 		} catch (WrongUsernameException e) {
 			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bad credentials!", e);
 		} catch (WrongPasswordException e) {
@@ -92,11 +92,15 @@ public class UserController {
 	
 	@RequestMapping( value = "/register", method = RequestMethod.POST )
 	@ResponseBody
-	public String register(@RequestParam String username, @RequestParam String email, @RequestParam String password, HttpServletRequest request, HttpServletResponse response) {
+	public String register(@RequestParam String username, @RequestParam String email, @RequestParam String password, HttpServletRequest request, HttpServletResponse response)
+	throws ResponseStatusException {
 		try {
 			userService.registerUser(email, username, password);
-		} catch (WrongPasswordException | WrongUsernameException | WrongEmailException | AlreadyExistsException e) {
+		} catch (WrongPasswordException | WrongUsernameException | WrongEmailException e) {
 			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
+		} catch (AlreadyExistsException e) {
+			System.err.println(e.getMessage());
+			throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
 		}
 		return "{\"success\":\"1\"}";
 	}

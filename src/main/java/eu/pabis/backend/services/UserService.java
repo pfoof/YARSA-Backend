@@ -60,7 +60,6 @@ public class UserService {
 					else if(constraint != null && constraint.equalsIgnoreCase("unique_email"))
 						throw new AlreadyExistsException("User with this email already exists!");
 				}
-				System.err.print(e.getMessage());
 			}
 		else {
 			for(ConstraintViolation<UserModel> violation : violations) {
