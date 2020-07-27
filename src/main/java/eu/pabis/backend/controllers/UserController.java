@@ -51,14 +51,14 @@ public class UserController {
 			String uid = sessionService.getUserIdBySession(cookie);
 			UserModel user = userService.findUserById(uid);
 			if(user == null)
-				throw new HttpClientErrorException(HttpStatus.CONFLICT, "Session does not match any exisitng user!");
+				throw new ResponseStatusException(HttpStatus.CONFLICT, "Session does not match any exisitng user!");
 			
 			Map<String, String> result = new HashMap<String, String>();
 			result.put("username", user.email);
 			result.put("username", user.username);
 			return result;
 		} else
-			throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Session expired. Please login again!");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Session expired. Please login again!");
 	}
 	
 	@RequestMapping( value = "/login", method = RequestMethod.POST )
@@ -96,7 +96,7 @@ public class UserController {
 		try {
 			userService.registerUser(email, username, password);
 		} catch (WrongPasswordException | WrongUsernameException | WrongEmailException | AlreadyExistsException e) {
-			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		}
 		return "{\"success\":\"1\"}";
 	}

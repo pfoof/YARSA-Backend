@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 import eu.pabis.backend.exceptions.AlreadyExistsException;
 import eu.pabis.backend.exceptions.BadBookParametersException;
@@ -37,26 +38,26 @@ public class BooksController {
 	
 	@RequestMapping(method = RequestMethod.POST, value = {"/", ""})
 	@ResponseBody //Skip thymeleaf
-	String addBook(@RequestBody BookModel book) throws HttpClientErrorException {
+	String addBook(@RequestBody BookModel book) throws ResponseStatusException {
 		try {
 			return service.addBook(book);
 		} catch (NullPointerException e) {
-			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "The content of the record is null");
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "The content of the record is null");
 		} catch (BadBookParametersException e) {
-			throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, e.getMessage());
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, e.getMessage());
 		} catch(AlreadyExistsException e) {
-			throw new HttpClientErrorException(HttpStatus.CONFLICT, e.getMessage());
+			throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
 		} catch(UnknownException e) {
-			throw new HttpClientErrorException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+			throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
 		}
 	}
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.GET)
 	@ResponseBody //Skip thymeleaf
-	BookModel books(@PathVariable("id") String id) throws HttpClientErrorException {
+	BookModel books(@PathVariable("id") String id) throws ResponseStatusException {
 		BookModel book = service.getBook(id);
 		if(book == null)
-			throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "Book with id "+id+" is not in the database!");
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book with id "+id+" is not in the database!");
 		else
 			return book;
 		
@@ -64,11 +65,11 @@ public class BooksController {
 	
 	@RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
 	@ResponseBody //Skip thymeleaf
-	String deleteBook(@PathVariable("id") String id) throws HttpClientErrorException {
+	String deleteBook(@PathVariable("id") String id) throws ResponseStatusException {
 		try {
 			return service.deleteBook(id);
 		} catch (NullPointerException e) {
-			throw new HttpClientErrorException(HttpStatus.NOT_FOUND, "Book with id "+id+" is not in the database!");
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Book with id "+id+" is not in the database!");
 		}
 	}
 	
