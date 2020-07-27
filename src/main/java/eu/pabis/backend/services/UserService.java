@@ -86,7 +86,8 @@ public class UserService {
 			throw new WrongPasswordException("Password is wrong!");
 	}
 	
-	private NamedParameterJdbcTemplate template = null;
+	@Autowired
+	private NamedParameterJdbcTemplate template;
 	
 	public static final String SCHEMA = "CREATE TABLE IF NOT EXISTS users (\n" + 
 			"    "+UserRowMapper.ID+" varchar(128)  NOT NULL,\n" + 
