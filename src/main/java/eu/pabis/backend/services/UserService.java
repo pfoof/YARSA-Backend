@@ -53,8 +53,9 @@ public class UserService {
 			try {
 				insertUser(user);
 			} catch(DataAccessException e) {
-				if(e instanceof DuplicateKeyException && e.getCause() instanceof PSQLException) {
+				if(e.getCause() instanceof PSQLException) {
 					String constraint = ( (PSQLException) e.getCause()).getServerErrorMessage().getConstraint();
+					System.err.println(constraint);
 					if(constraint != null && constraint.equalsIgnoreCase("unique_username"))
 						throw new AlreadyExistsException("User with this username already exists!");
 					else if(constraint != null && constraint.equalsIgnoreCase("unique_email"))
