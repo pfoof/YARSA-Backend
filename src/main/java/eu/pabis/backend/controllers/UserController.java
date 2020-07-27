@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.server.ResponseStatusException;
 
 import eu.pabis.backend.exceptions.AlreadyExistsException;
 import eu.pabis.backend.exceptions.WrongEmailException;
@@ -61,16 +62,16 @@ public class UserController {
 	
 	@RequestMapping( value = "/login", method = RequestMethod.POST )
 	@ResponseBody
-	public String login(@RequestParam String username, @RequestParam String password, HttpServletResponse response) throws HttpClientErrorException {
+	public String login(@RequestParam String username, @RequestParam String password, HttpServletResponse response) throws ResponseStatusException {
 		try {
 			System.out.println("Logging in user: "+username);
 			String session = userService.loginUser(username, password);
 			setSessionCookie(response, session);
 			return session;
 		} catch (WrongUsernameException e) {
-			throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Bad credentials!");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bad credentials!");
 		} catch (WrongPasswordException e) {
-			throw new HttpClientErrorException(HttpStatus.UNAUTHORIZED, "Bad credentials!");
+			throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Bad credentials!");
 		}
 		
 	}
