@@ -54,7 +54,7 @@ public class UserController {
 				throw new ResponseStatusException(HttpStatus.CONFLICT, "Session does not match any exisitng user!");
 			
 			Map<String, String> result = new HashMap<String, String>();
-			result.put("username", user.email);
+			result.put("email", user.email);
 			result.put("username", user.username);
 			return result;
 		} else
